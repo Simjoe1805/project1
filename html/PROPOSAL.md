@@ -1,4 +1,4 @@
-lient: Julie Duteau 
+
 
 project proposal: creating a questionaire website that ask 10 questions, gets you to your personality type, and matches it with a cat that fits your personality type. 
 
@@ -22,3 +22,7 @@ expected user journey:
 things needed to be prepared: 
 - the questions that can define what MBTI a person is
 - deciding what cat should be put into 
+
+UI management: 
+- need it to be vibrant 
+- need it
