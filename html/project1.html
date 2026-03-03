@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>What Cat Are You?</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <div class="fx" aria-hidden="true"></div>
+
+  <!-- Flower barrage -->
+  <div class="flowers" aria-hidden="true">
+    <span class="flower f1">🌸</span><span class="flower f2">🌼</span><span class="flower f3">🌺</span><span class="flower f4">🌷</span><span class="flower f5">💮</span>
+    <span class="flower f6">🌻</span><span class="flower f7">🌸</span><span class="flower f8">🌼</span><span class="flower f9">🌺</span><span class="flower f10">🌷</span>
+    <span class="flower f11">💮</span><span class="flower f12">🌻</span><span class="flower f13">🌸</span><span class="flower f14">🌼</span><span class="flower f15">🌺</span>
+    <span class="flower f16">🌷</span><span class="flower f17">💮</span><span class="flower f18">🌻</span><span class="flower f19">🌸</span><span class="flower f20">🌼</span>
+  </div>
+
+  <!-- Corner cats -->
+  <div class="corner-cats" aria-hidden="true">
+    <div class="corner-cat tl">🐱</div>
+    <div class="corner-cat tr">🐈‍⬛</div>
+    <div class="corner-cat bl">😼</div>
+    <div class="corner-cat br">😺</div>
+  </div>
+
+  <main class="wrap">
+    <article class="card" aria-label="What Cat Are You quiz">
+      <header class="top">
+        <div class="brand">
+          <h1>What Cat Are You?</h1>
+          <p>20 questions. MBTI-ish. One specific cat breed/type that matches your energy.</p>
+        </div>
+        <p class="pill" id="statusPill" aria-live="polite">Ready</p>
+      </header>
+
+      <div class="panel">
+        <!-- Landing -->
+        <section id="screenLanding" aria-labelledby="landingTitle">
+          <h2 id="landingTitle" class="big">Answer 20 questions… and meet your matching cat.</h2>
+          <p class="small">
+            Inspired by MBTI dimensions: <strong>E/I</strong>, <strong>S/N</strong>, <strong>T/F</strong>, <strong>J/P</strong>.
+          </p>
+
+          <div class="row">
+            <button class="btn" id="startBtn" type="button">Start the Quiz</button>
+            <button class="ghost" id="howBtn" type="button" aria-expanded="false" aria-controls="howText">How it works</button>
+          </div>
+
+          <p class="small" id="howText" hidden>
+            Each answer adds 1 point to one side of a dimension. Highest side becomes your letter.
+            Ties default to I, N, F, P (changeable in code).
+          </p>
+        </section>
+
+        <!-- Quiz -->
+        <section id="screenQuiz" class="hide" aria-labelledby="quizTitle">
+          <header>
+            <h2 id="quizTitle" class="big">Quiz</h2>
+            <p class="pill inline">
+              Question <span id="qNum">1</span> / <span id="qTotal">20</span>
+            </p>
+          </header>
+
+          <div role="group" aria-labelledby="qText" aria-describedby="qSub">
+            <p class="big" id="qText">Question goes here…</p>
+            <p class="small" id="qSub">Pick what feels more like you.</p>
+
+            <div class="row column">
+              <button class="choice" id="optA" type="button">A — …</button>
+              <button class="choice" id="optB" type="button">B — …</button>
+            </div>
+          </div>
+
+          <div class="progress" aria-label="Progress">
+            <div class="bar" id="bar"></div>
+          </div>
+
+          <nav class="row" aria-label="Quiz controls">
+            <button class="ghost" id="backBtn" type="button">Back</button>
+            <button class="ghost" id="resetBtn" type="button">Restart</button>
+          </nav>
+        </section>
+
+        <!-- Result -->
+        <section id="screenResult" class="hide" aria-labelledby="resultTitle">
+          <h2 id="resultTitle" class="big">Your result</h2>
+          <p class="small">Your MBTI vibe + your matching specific cat breed/type.</p>
+
+          <!-- Name input for certificate -->
+          <div class="nameBox" aria-label="Certificate name input">
+            <label class="small" for="nameInput"><strong>Name for certificate</strong></label>
+            <input id="nameInput" class="nameInput" type="text" maxlength="32" placeholder="Type your name (e.g., Jules)" autocomplete="name" />
+            <p class="small hint">Tip: This name will appear on your downloadable certificate.</p>
+          </div>
+
+          <section class="resultBox" aria-label="Result card">
+            <h3 class="small">Your type</h3>
+            <p class="type" id="mbtiType">—</p>
+
+            <div class="resultMeta">
+              <h3 class="small">Your cat</h3>
+              <p class="catName" id="catName">—</p>
+              <p class="small catDesc" id="catDesc">—</p>
+            </div>
+          </section>
+
+          <div class="row">
+            <button class="btn" id="shareBtn" type="button">Share to Instagram</button>
+            <button class="btn" id="certBtn" type="button">Download Certificate</button>
+            <button class="ghost" id="againBtn" type="button">Take Again</button>
+          </div>
+
+          <p class="small" id="shareNote" aria-live="polite"></p>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <script>
+    // =========================
+    // 20 balanced questions
+    // =========================
+    const questions = [
+      { text:"At a party, you usually…", sub:"What feels more natural?",
+        a:{ label:"Talk to lots of people and gain energy from it", trait:"E" },
+        b:{ label:"Stick with a few people and recharge afterward", trait:"I" } },
+      { text:"In group discussions you tend to…", sub:"",
+        a:{ label:"Speak up quickly and think out loud", trait:"E" },
+        b:{ label:"Think first and speak carefully", trait:"I" } },
+      { text:"After a long week you prefer…", sub:"",
+        a:{ label:"Going out and being around people", trait:"E" },
+        b:{ label:"Spending quiet time alone or with one person", trait:"I" } },
+      { text:"When brainstorming ideas, you prefer to…", sub:"",
+        a:{ label:"Bounce ideas off others", trait:"E" },
+        b:{ label:"Develop ideas internally first", trait:"I" } },
+      { text:"You feel most energized when…", sub:"",
+        a:{ label:"The environment is lively and interactive", trait:"E" },
+        b:{ label:"You have space and minimal noise", trait:"I" } },
+
+      { text:"When learning something new, you prefer…", sub:"",
+        a:{ label:"Practical steps and real examples", trait:"S" },
+        b:{ label:"Concepts, patterns, and big ideas", trait:"N" } },
+      { text:"You trust information that is…", sub:"",
+        a:{ label:"Proven and tangible", trait:"S" },
+        b:{ label:"Innovative and forward-thinking", trait:"N" } },
+      { text:"In conversations you focus more on…", sub:"",
+        a:{ label:"What is happening now", trait:"S" },
+        b:{ label:"What could happen in the future", trait:"N" } },
+      { text:"When solving problems you prefer…", sub:"",
+        a:{ label:"Step-by-step methods", trait:"S" },
+        b:{ label:"Creative leaps and reimagining", trait:"N" } },
+      { text:"You’re more drawn to…", sub:"",
+        a:{ label:"Mastery and precision", trait:"S" },
+        b:{ label:"Vision and reinvention", trait:"N" } },
+
+      { text:"When making decisions you value…", sub:"",
+        a:{ label:"Logic and fairness", trait:"T" },
+        b:{ label:"Empathy and harmony", trait:"F" } },
+      { text:"Criticism hurts more when…", sub:"",
+        a:{ label:"Your reasoning is questioned", trait:"T" },
+        b:{ label:"Your intentions are misunderstood", trait:"F" } },
+      { text:"In conflict you usually…", sub:"",
+        a:{ label:"Focus on facts and solutions", trait:"T" },
+        b:{ label:"Focus on feelings and relationships", trait:"F" } },
+      { text:"You admire people who are…", sub:"",
+        a:{ label:"Competent and rational", trait:"T" },
+        b:{ label:"Kind and compassionate", trait:"F" } },
+      { text:"When giving feedback you tend to be…", sub:"",
+        a:{ label:"Direct and honest", trait:"T" },
+        b:{ label:"Gentle and considerate", trait:"F" } },
+
+      { text:"Your schedule is usually…", sub:"",
+        a:{ label:"Organized and planned", trait:"J" },
+        b:{ label:"Flexible and spontaneous", trait:"P" } },
+      { text:"Deadlines make you feel…", sub:"",
+        a:{ label:"Focused and productive", trait:"J" },
+        b:{ label:"Restricted but motivated at the last minute", trait:"P" } },
+      { text:"When traveling you prefer…", sub:"",
+        a:{ label:"An itinerary", trait:"J" },
+        b:{ label:"Exploring freely", trait:"P" } },
+      { text:"You feel better when…", sub:"",
+        a:{ label:"Things are decided", trait:"J" },
+        b:{ label:"Options stay open", trait:"P" } },
+      { text:"You’re more likely to…", sub:"",
+        a:{ label:"Finish tasks early", trait:"J" },
+        b:{ label:"Work in bursts near deadlines", trait:"P" } }
+    ];
+
+    // =========================
+    // Cat icons + certificate palettes
+    // - icon: shown on result + certificate stamp
+    // - palette: changes certificate colors based on result
+    // =========================
+    const catByMBTI = {
+      ISTJ: { breed:"British Shorthair", icon:"🛡️", desc:"Calm, consistent, and quietly confident. You’re all about stability, routines, and doing things the right way.",
+              palette:{ bgA:"#0b0b18", bgB:"#11112b", a:"#7c5cff", b:"#00d4ff", c:"#ffd36a" } },
+
+      ISFJ: { breed:"Scottish Fold", icon:"🧸", desc:"Gentle, loyal, and nurturing. You’re a comforting presence who takes care of people in practical ways.",
+              palette:{ bgA:"#0b0b18", bgB:"#101028", a:"#ff4fd8", b:"#ffd36a", c:"#34ffb6" } },
+
+      INFJ: { breed:"Ragdoll", icon:"🔮", desc:"Soft-hearted and intuitive. You read the room deeply and bring calm to chaos.",
+              palette:{ bgA:"#070712", bgB:"#121233", a:"#7c5cff", b:"#ff4fd8", c:"#00d4ff" } },
+
+      INTJ: { breed:"Russian Blue", icon:"♟️", desc:"Quiet, strategic, and independent. You observe first, move with purpose, and don’t waste energy.",
+              palette:{ bgA:"#070712", bgB:"#0d0d22", a:"#00d4ff", b:"#7c5cff", c:"#34ffb6" } },
+
+      ISTP: { breed:"Norwegian Forest Cat", icon:"🧭", desc:"Self-sufficient and capable. You stay cool under pressure and handle things your own way.",
+              palette:{ bgA:"#070712", bgB:"#101028", a:"#34ffb6", b:"#00d4ff", c:"#ffd36a" } },
+
+      ISFP: { breed:"Persian", icon:"🎀", desc:"Aesthetic, sensitive, and peaceful. You value comfort, beauty, and a calm vibe.",
+              palette:{ bgA:"#0b0b18", bgB:"#141433", a:"#ff4fd8", b:"#7c5cff", c:"#ffd36a" } },
+
+      INFP: { breed:"Maine Coon", icon:"📖", desc:"Gentle, imaginative, and deeply sincere. You’re warm, soulful, and quietly strong.",
+              palette:{ bgA:"#070712", bgB:"#121233", a:"#ffd36a", b:"#ff4fd8", c:"#34ffb6" } },
+
+      INTP: { breed:"Oriental Shorthair", icon:"🧠", desc:"Curious, clever, and a little eccentric. You love ideas, puzzles, and doing things differently.",
+              palette:{ bgA:"#070712", bgB:"#0f0f29", a:"#00d4ff", b:"#ffd36a", c:"#7c5cff" } },
+
+      ESTP: { breed:"Savannah", icon:"⚡", desc:"Bold, daring, and high-energy. You chase excitement and thrive on action.",
+              palette:{ bgA:"#0b0b18", bgB:"#11112b", a:"#34ffb6", b:"#ff4fd8", c:"#00d4ff" } },
+
+      ESFP: { breed:"Orange Tabby", icon:"🎉", desc:"Playful, social, and entertaining. You’re the vibe, the moment, and the story.",
+              palette:{ bgA:"#0b0b18", bgB:"#151537", a:"#ffd36a", b:"#ff4fd8", c:"#00d4ff" } },
+
+      ENFP: { breed:"Sphynx", icon:"🌈", desc:"Expressive, affectionate, and chaotic-good. You connect fast and bring fun everywhere.",
+              palette:{ bgA:"#070712", bgB:"#14143a", a:"#ff4fd8", b:"#00d4ff", c:"#34ffb6" } },
+
+      ENTP: { breed:"Abyssinian", icon:"🃏", desc:"Witty, restless, and inventive. You question everything and love mental stimulation.",
+              palette:{ bgA:"#070712", bgB:"#101035", a:"#00d4ff", b:"#7c5cff", c:"#ffd36a" } },
+
+      ESTJ: { breed:"Turkish Van", icon:"👑", desc:"Confident and decisive. You set the pace and like things done properly.",
+              palette:{ bgA:"#0b0b18", bgB:"#121233", a:"#ffd36a", b:"#00d4ff", c:"#7c5cff" } },
+
+      ESFJ: { breed:"Birman", icon:"🤝", desc:"Warm, friendly, and community-minded. You make people feel included and cared for.",
+              palette:{ bgA:"#0b0b18", bgB:"#15153a", a:"#ff4fd8", b:"#ffd36a", c:"#00d4ff" } },
+
+      ENFJ: { breed:"Siamese", icon:"💬", desc:"Social, vocal, and relationship-driven. You bring people together and lead with heart.",
+              palette:{ bgA:"#070712", bgB:"#121233", a:"#00d4ff", b:"#ff4fd8", c:"#ffd36a" } },
+
+      ENTJ: { breed:"Bengal", icon:"🔥", desc:"Driven and intense. You want challenge, progress, and the top perch.",
+              palette:{ bgA:"#070712", bgB:"#101028", a:"#34ffb6", b:"#00d4ff", c:"#ff4fd8" } }
+    };
+
+    // Optional: real cat images for certificate
+    // const catImageByType = { INTJ: "assets/cats/russian-blue.png" };
+    const catImageByType = {};
+
+    function loadImage(src){
+      return new Promise((resolve) => {
+        if(!src) return resolve(null);
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = src;
+      });
+    }
+
+    // =========================
+    // State + helpers
+    // =========================
+    const state = {
+      i: 0,
+      answers: [],
+      score: { E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0 },
+      result: null // store last result object for certificate palette/icon
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function setScreen(which){
+      $("screenLanding").classList.add("hide");
+      $("screenQuiz").classList.add("hide");
+      $("screenResult").classList.add("hide");
+      $(which).classList.remove("hide");
+    }
+
+    function setStatus(text){
+      $("statusPill").textContent = text;
+    }
+
+    function renderQuestion(){
+      const q = questions[state.i];
+      $("qNum").textContent = state.i + 1;
+      $("qTotal").textContent = questions.length;
+      $("qText").textContent = q.text;
+      $("qSub").textContent = q.sub || "Pick what feels more like you.";
+      $("optA").textContent = "A — " + q.a.label;
+      $("optB").textContent = "B — " + q.b.label;
+
+      const pct = Math.round((state.i / questions.length) * 100);
+      $("bar").style.width = pct + "%";
+      setStatus(`In Quiz • ${state.i + 1}/${questions.length}`);
+    }
+
+    function applyTrait(trait, delta){
+      state.score[trait] = Math.max(0, state.score[trait] + delta);
+    }
+
+    function choose(trait){
+      const prev = state.answers[state.i];
+      if(prev) applyTrait(prev, -1);
+
+      state.answers[state.i] = trait;
+      applyTrait(trait, +1);
+
+      if(state.i < questions.length - 1){
+        state.i += 1;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function back(){
+      if(state.i === 0) return;
+      state.i -= 1;
+      renderQuestion();
+    }
+
+    function restart(){
+      state.i = 0;
+      state.answers = [];
+      state.score = { E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0 };
+      state.result = null;
+
+      $("bar").style.width = "0%";
+      $("shareNote").textContent = "";
+      $("howText").hidden = true;
+      $("howBtn").setAttribute("aria-expanded", "false");
+
+      // keep name input (optional)
+      // $("nameInput").value = "";
+
+      setStatus("Ready");
+      setScreen("screenLanding");
+    }
+
+    // Tie-break defaults: I, N, F, P
+    function computeMBTI(){
+      const pick = (a,b,tie) =>
+        (state.score[a] > state.score[b]) ? a :
+        (state.score[b] > state.score[a]) ? b :
+        tie;
+
+      const EI = pick("E","I","I");
+      const SN = pick("S","N","N");
+      const TF = pick("T","F","F");
+      const JP = pick("J","P","P");
+      return EI + SN + TF + JP;
+    }
+
+    function showResult(){
+      $("bar").style.width = "100%";
+
+      const mbti = computeMBTI();
+      const data = catByMBTI[mbti] || {
+        breed:"Mystery Cat",
+        icon:"✨",
+        desc:"You’re hard to label—and that’s kind of iconic.",
+        palette:{ bgA:"#070712", bgB:"#0b0b18", a:"#ff4fd8", b:"#00d4ff", c:"#34ffb6" }
+      };
+
+      state.result = { mbti, ...data };
+
+      $("mbtiType").textContent = mbti;
+      $("catName").textContent = `${data.icon} ${data.breed} 🐾`;
+      $("catDesc").textContent = data.desc;
+
+      setStatus("Result");
+      setScreen("screenResult");
+    }
+
+    // =========================
+    // Instagram share: copy + open Instagram
+    // =========================
+    async function shareToInstagram(){
+      const mbti = $("mbtiType").textContent.trim();
+      const cat = $("catName").textContent.trim();
+
+      const text =
+        `I got ${mbti} — ${cat} on "What Cat Are You?" 😼\n\n` +
+        `Try it here: YOURWEBSITEURL.com`;
+
+      try{
+        await navigator.clipboard.writeText(text);
+        $("shareNote").textContent = "Result copied! Opening Instagram… paste it into your story/caption.";
+        window.open("https://www.instagram.com/", "_blank");
+      } catch(e){
+        $("shareNote").textContent = "Couldn’t copy automatically. Please copy manually:\n" + text;
+      }
+    }
+
+    // =========================
+    // Certificate generator (PNG)
+    // - Name from input
+    // - Color palette from cat result
+    // - Icon from cat result
+    // =========================
+    function roundRect(ctx, x, y, w, h, r){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+      const words = String(text).split(" ");
+      let line = "";
+      for(let n=0; n<words.length; n++){
+        const test = line + words[n] + " ";
+        if(ctx.measureText(test).width > maxWidth && n > 0){
+          ctx.fillText(line.trim(), x, y);
+          line = words[n] + " ";
+          y += lineHeight;
+        } else {
+          line = test;
+        }
+      }
+      ctx.fillText(line.trim(), x, y);
+    }
+
+    async function downloadCertificate(){
+      const res = state.result;
+      if(!res){
+        $("shareNote").textContent = "Take the quiz first to generate a certificate.";
+        return;
+      }
+
+      const name = ($("nameInput").value || "").trim() || "You";
+      const type = res.mbti;
+      const breed = res.breed;
+      const icon = res.icon;
+      const pal = res.palette;
+
+      const w = 1400, h = 900;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = w;
+      canvas.height = h;
+
+      // Background gradient based on palette
+      const bg = ctx.createLinearGradient(0,0,w,h);
+      bg.addColorStop(0, pal.bgA);
+      bg.addColorStop(1, pal.bgB);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0,0,w,h);
+
+      // Accent blobs based on palette
+      function blob(x,y,r,color,alpha){
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        const g = ctx.createRadialGradient(x,y,0,x,y,r);
+        g.addColorStop(0,color);
+        g.addColorStop(1,"transparent");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x,y,r,0,Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      }
+      blob(220, 180, 300, pal.a, 0.22);
+      blob(1200, 220, 320, pal.b, 0.18);
+      blob(1000, 760, 360, pal.c, 0.14);
+      blob(360, 760, 320, pal.a, 0.12);
+
+      // Card
+      const pad = 70;
+      const x = pad, y = pad, cw = w - pad*2, ch = h - pad*2;
+
+      ctx.save();
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      roundRect(ctx, x, y, cw, ch, 34);
+      ctx.fill();
+      ctx.restore();
+
+      // Border in accent color
+      ctx.strokeStyle = "rgba(255,255,255,0.18)";
+      ctx.lineWidth = 3;
+      roundRect(ctx, x, y, cw, ch, 34);
+      ctx.stroke();
+
+      // Accent divider
+      const divider = pal.b;
+      ctx.strokeStyle = "rgba(255,255,255,0.14)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x + 40, y + 150);
+      ctx.lineTo(x + cw - 40, y + 150);
+      ctx.stroke();
+
+      // Title
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.font = "800 64px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      ctx.fillText("CERTIFICATE OF CAT PERSONALITY", x + 60, y + 105);
+
+      // Name label
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.font = "600 28px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      ctx.fillText("Awarded to:", x + 60, y + 210);
+
+      // Name
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.font = "800 54px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      ctx.fillText(name, x + 60, y + 280);
+
+      // MBTI label
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.font = "700 28px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      ctx.fillText("MBTI Type", x + 60, y + 370);
+
+      // MBTI
+      ctx.fillStyle = "rgba(255,255,255,0.96)";
+      ctx.font = "900 92px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      ctx.fillText(type, x + 60, y + 465);
+
+      // Cat label
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.font = "700 28px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      ctx.fillText("Cat Match", x + 60, y + 535);
+
+      // Cat name
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.font = "800 44px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      wrapText(ctx, `${icon} ${breed}`, x + 60, y + 595, 760, 54);
+
+      // Stamp area: image if available else icon
+      const stampCx = x + cw - 290;
+      const stampCy = y + 430;
+
+      // stamp ring gradient
+      const ring = ctx.createLinearGradient(stampCx-150, stampCy-150, stampCx+150, stampCy+150);
+      ring.addColorStop(0, pal.a);
+      ring.addColorStop(0.5, pal.b);
+      ring.addColorStop(1, pal.c);
+
+      const imgSrc = catImageByType[type];
+      const img = await loadImage(imgSrc);
+
+      if(img){
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(stampCx, stampCy, 150, 0, Math.PI*2);
+        ctx.clip();
+
+        const scale = Math.max(300/img.width, 300/img.height);
+        const dw = img.width * scale;
+        const dh = img.height * scale;
+        ctx.drawImage(img, stampCx - dw/2, stampCy - dh/2, dw, dh);
+        ctx.restore();
+
+        ctx.strokeStyle = ring;
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.arc(stampCx, stampCy, 150, 0, Math.PI*2);
+        ctx.stroke();
+      } else {
+        // Icon stamp
+        ctx.fillStyle = "rgba(255,255,255,0.92)";
+        ctx.font = "140px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji";
+        ctx.textAlign = "center";
+        ctx.fillText(icon, stampCx, stampCy + 52);
+
+        ctx.strokeStyle = ring;
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.arc(stampCx, stampCy, 150, 0, Math.PI*2);
+        ctx.stroke();
+
+        ctx.textAlign = "left";
+      }
+
+      // Footer date
+      const today = new Date();
+      const dateStr = today.toLocaleDateString(undefined, { year:"numeric", month:"long", day:"numeric" });
+
+      ctx.fillStyle = "rgba(255,255,255,0.70)";
+      ctx.font = "600 24px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      ctx.fillText(`Issued: ${dateStr}`, x + 60, y + ch - 70);
+
+      ctx.fillStyle = "rgba(255,255,255,0.72)";
+      ctx.font = "600 24px Poppins, system-ui, -apple-system, Segoe UI, Arial";
+      ctx.fillText(`What Cat Are You?`, x + cw - 340, y + ch - 70);
+
+      // Download PNG
+      const a = document.createElement("a");
+      a.download = `what-cat-are-you_${type}_${name.replace(/\s+/g,'_')}.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+
+      $("shareNote").textContent = "Certificate downloaded!";
+    }
+
+    // =========================
+    // Events
+    // =========================
+    $("startBtn").addEventListener("click", () => {
+      setScreen("screenQuiz");
+      setStatus("In Quiz");
+      renderQuestion();
+    });
+
+    $("howBtn").addEventListener("click", () => {
+      const how = $("howText");
+      const isOpen = !how.hidden;
+      how.hidden = isOpen;
+      $("howBtn").setAttribute("aria-expanded", String(!isOpen));
+    });
+
+    $("optA").addEventListener("click", () => choose(questions[state.i].a.trait));
+    $("optB").addEventListener("click", () => choose(questions[state.i].b.trait));
+
+    $("backBtn").addEventListener("click", back);
+    $("resetBtn").addEventListener("click", restart);
+
+    $("againBtn").addEventListener("click", restart);
+    $("shareBtn").addEventListener("click", shareToInstagram);
+    $("certBtn").addEventListener("click", downloadCertificate);
+  </script>
+</body>
+</html>
